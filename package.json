@@ -1,0 +1,26 @@
+{
+  "bugs": {
+    "url": "https://github.com/eliasgs/y/issues"
+  },
+  "deprecated": false,
+  "description": "Simple object inspection tool",
+  "homepage": "https://github.com/eliasgs/y#readme",
+  "keywords": [
+    "inspect",
+    "debug",
+    "trace"
+  ],
+  "license": "MIT",
+  "main": "node_modules/y/y.js",
+  "name": "y",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eliasgs/y.git"
+  },
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "version": "0.3.2"
+}
