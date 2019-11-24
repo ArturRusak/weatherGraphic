@@ -1,18 +1,13 @@
 {
-  "bugs": {
-    "url": "https://github.com/eliasgs/y/issues"
-  },
   "deprecated": false,
-  "description": "Simple object inspection tool",
-  "homepage": "https://github.com/eliasgs/y#readme",
+  "description": "Weather graphic",
   "keywords": [
     "inspect",
     "debug",
     "trace"
   ],
   "license": "MIT",
-  "main": "node_modules/y/y.js",
-  "name": "y",
+  "name": "weathergrph",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eliasgs/y.git"
@@ -20,7 +15,21 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "eslint ."
   },
-  "version": "0.3.2"
+  "version": "0.3.2",
+  "dependencies": {
+    "eslint": "^6.7.0",
+    "next": "^9.1.4",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-prettier": "^3.1.1",
+    "prettier": "^1.19.1"
+  }
 }
