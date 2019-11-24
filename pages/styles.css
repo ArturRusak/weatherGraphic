@@ -1,0 +1,10 @@
+body {
+    display: grid;
+    grid-gap: 10px;
+    background: #dadada;
+}
+
+body > * {
+    background: red;
+}
+
