@@ -20,10 +20,12 @@
   },
   "version": "0.3.2",
   "dependencies": {
+    "d3": "^5.14.2",
     "eslint": "^6.7.0",
     "next": "^9.1.4",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react-dom": "^16.12.0",
+    "styled-jsx": "^3.2.4"
   },
   "devDependencies": {
     "eslint-config-airbnb": "^18.0.1",
