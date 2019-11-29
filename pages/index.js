@@ -1,65 +1,33 @@
 import React, { useEffect } from "react";
 import * as d3 from "d3";
-import css from "styled-jsx/css";
+import "../static/home/styles.css";
 import fetch from "isomorphic-unfetch";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
-const styles = css`
-  .content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background-color: #dadada;
-    justify-items: center;
-    align-items: center;
-  }
-  .content-item.graph {
-    grid-column-start: span 2;
-    padding: 1em;
-  }
-  body {
-    font-family: sans-serif;
-    color: #444;
-  }
-
-  .line {
-    fill: none;
-    stroke: #ffab00;
-    stroke-width: 3;
-  
-`;
-
 export default function Home(props) {
   useEffect(() => {
     const { data, error } = props;
+    if (!data) {
+      return;
+    }
+    const { hourly } = data;
     let dateMarkers = {
       date: [],
       temperature: []
     };
-    if (data) {
-      data.hourly.data.map(item => {
-        const timeInSeconds = item.time * 1000;
-        const date = new Date(timeInSeconds);
 
-        dateMarkers.date.push(date);
-        dateMarkers.temperature.push(item.temperature);
-      });
-    }
+    hourly.data.map(item => {
+      const timeInSeconds = item.time * 1000;
+      const date = new Date(timeInSeconds);
 
-    console.log(data, "----");
+      dateMarkers.date.push(date);
+      dateMarkers.temperature.push(item.temperature);
+    });
     const margin = { top: 10, right: 30, bottom: 90, left: 40 };
     const width = 960 - margin.left - margin.right;
     const height = 450 - margin.top - margin.bottom;
-
-    // append the svg object to the body of the page
-    const svg = d3
-      .select("body")
-      .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Add Y axis
     const yScale = d3
@@ -70,26 +38,64 @@ export default function Home(props) {
       ])
       .range([400, 0]);
 
-    const xScale = d3
-      .scaleTime()
-      .domain([
-        dateMarkers.date[0],
-        dateMarkers.date[dateMarkers.date.length - 1]
-      ])
-      .range([0, 960]);
+    const xScale = d3.scaleTime().range([0, 960]);
+    xScale.domain(d3.extent(dateMarkers.date));
 
     // 7. d3's line generator
     const line = d3
       .line()
-      .x(d => xScale(d.date)) // set the x values for the line generator
-      .y(d => yScale(d.temperature)); // set the y values for the line generator
+      .x(d => xScale(d.x))
+      .y(d => yScale(d.y))
+      .curve(d3.curveMonotoneX);
 
-    // 9. Append the path, bind the data, and call the line generator
+    const lineCoordinates = dateMarkers.date.map((item, i) => ({
+      x: item,
+      y: dateMarkers.temperature[i]
+    }));
+
+    const drawYLinesGrid = () => {
+      return d3.axisLeft(yScale).ticks(10);
+    };
+
+    const drawXLinesGrid = () => {
+      return d3.axisBottom(xScale).ticks(10);
+    };
+
+    // append the svg object to the body of the page
+    const svg = d3
+      .select("body")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom + 20)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    svg
+      .append("g")
+      .attr("class", "grid")
+      .attr("transform", `translate(${margin.left},${margin.top})`)
+      .call(
+        drawYLinesGrid()
+          .tickSize(-width)
+          .tickFormat("")
+      );
+
+    svg
+      .append("g")
+      .attr("class", "grid")
+      .call(
+        drawXLinesGrid()
+          .tickSize(height)
+          .tickFormat("")
+      );
+
     svg
       .append("path")
-      .datum(dateMarkers) // 10. Binds data to the line
-      .attr("class", "line") // Assign a class for styling
-      .attr("d", line); // 11. Calls the line generator
+      .datum(lineCoordinates)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("d", line);
 
     svg.append("g").call(d3.axisLeft(yScale));
 
@@ -103,6 +109,9 @@ export default function Home(props) {
       .attr("dx", "-.5em")
       .attr("dy", ".95em")
       .attr("transform", "rotate(-65)");
+
+    // add styles for grid
+    svg.selectAll(".grid line").style("opacity", 0.2);
   }, []);
 
   return (
@@ -120,7 +129,6 @@ export default function Home(props) {
         </div>
       </div>
       <Footer />
-      <style jsx>{styles}</style>
     </div>
   );
 }

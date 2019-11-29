@@ -1,0 +1,28 @@
+body {
+  font-family: sans-serif;
+  color: #444;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background-color: #dadada;
+  justify-items: center;
+  align-items: center;
+}
+.content-item.graph {
+  grid-column-start: span 2;
+  padding: 1em;
+}
+
+.line {
+  fill: none;
+  stroke: #ffab00;
+  stroke-width: 3;
+}
+.grid .tick line {
+  opacity: 0.4;
+}
+.grid path {
+  stroke-width: 0;
+}
