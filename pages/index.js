@@ -58,7 +58,7 @@ export default function Home(props) {
     };
 
     const drawXLinesGrid = () => {
-      return d3.axisBottom(xScale).ticks(10);
+      return d3.axisBottom(xScale).ticks(20);
     };
 
     // append the svg object to the body of the page
@@ -73,10 +73,9 @@ export default function Home(props) {
     svg
       .append("g")
       .attr("class", "grid")
-      .attr("transform", `translate(${margin.left},${margin.top})`)
       .call(
         drawYLinesGrid()
-          .tickSize(-width)
+          .tickSize(-1000)
           .tickFormat("")
       );
 
@@ -85,7 +84,7 @@ export default function Home(props) {
       .attr("class", "grid")
       .call(
         drawXLinesGrid()
-          .tickSize(height)
+          .tickSize(height + 50)
           .tickFormat("")
       );
 
@@ -97,7 +96,15 @@ export default function Home(props) {
       .attr("stroke-width", 1.5)
       .attr("d", line);
 
-    svg.append("g").call(d3.axisLeft(yScale));
+    svg
+      .append("g")
+      .call(d3.axisLeft(yScale))
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Number of Likes");
 
     svg
       .append("g")
@@ -109,6 +116,57 @@ export default function Home(props) {
       .attr("dx", "-.5em")
       .attr("dy", ".95em")
       .attr("transform", "rotate(-65)");
+
+    var focus = svg.append("g")
+      .attr("class", "focus")
+      .style("display", "none");
+
+    focus.append("circle")
+      .attr("r", 5);
+
+    focus.append("rect")
+      .attr("class", "tooltip")
+      .attr("width", 100)
+      .attr("height", 50)
+      .attr("x", 10)
+      .attr("y", -22)
+      .attr("rx", 4)
+      .attr("ry", 4);
+
+    focus.append("text")
+      .attr("class", "tooltip-date")
+      .attr("x", 18)
+      .attr("y", -2);
+
+    focus.append("text")
+      .attr("x", 18)
+      .attr("y", 18)
+      .text("Likes:");
+
+    focus.append("text")
+      .attr("class", "tooltip-likes")
+      .attr("x", 60)
+      .attr("y", 18);
+
+    svg.append("rect")
+      .attr("class", "overlay")
+      .attr("width", width)
+      .attr("height", height)
+      .on("mouseover", function() {
+        focus.style("display", null);
+      })
+      .on("mouseout", function() {
+        focus.style("display", "none");
+      })
+      .on("mousemove", mousemove);
+
+    function mousemove() {
+      const x = d3.mouse(this);
+      console.log(x);
+      focus.attr("transform", "translate(10, 20)");
+      focus.select(".tooltip-date").text("ttest2");
+      focus.select(".tooltip-likes").text("test");
+    }
 
     // add styles for grid
     svg.selectAll(".grid line").style("opacity", 0.2);
