@@ -25,7 +25,7 @@ export default function Home(props) {
       dateMarkers.date.push(date);
       dateMarkers.temperature.push(item.temperature);
     });
-    const margin = { top: 10, right: 30, bottom: 90, left: 40 };
+    const margin = { top: 10, right: 30, bottom: 120, left: 40 };
     const width = 960 - margin.left - margin.right;
     const height = 450 - margin.top - margin.bottom;
 
@@ -71,9 +71,9 @@ export default function Home(props) {
       .select("body")
       .append("svg")
       .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom + 20)
+      .attr("height", height + margin.top + margin.bottom)
       .append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
+      .attr("transform", `translate(${margin.left}, 0)`);
 
     svg
       .append("g")
@@ -89,7 +89,7 @@ export default function Home(props) {
       .attr("class", "grid")
       .call(
         drawXLinesGrid()
-          .tickSize(height + 50)
+          .tickSize(height + 80)
           .tickFormat("")
       );
 
@@ -113,7 +113,7 @@ export default function Home(props) {
     svg
       .append("g")
       // eslint-disable-next-line no-undef
-      .attr("transform", `translate(0, 400)`)
+      .attr("transform", `translate(0, ${height + 80})`)
       .call(d3.axisBottom(xScale).ticks(20))
       .selectAll("text")
       .style("text-anchor", "end")
@@ -146,7 +146,7 @@ export default function Home(props) {
       .attr("r", 5)
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
-      .attr("fill", "none");
+      .attr("fill", "white");
 
     focus
       .append("rect")
@@ -178,8 +178,8 @@ export default function Home(props) {
     svg
       .append("rect")
       .attr("class", "overlay")
-      .attr("width", 1000)
-      .attr("height", 1000)
+      .attr("width", width + margin.right)
+      .attr("height", height + 80)
       .on("mouseover", () => {
         focus.style("display", null);
       })
