@@ -49,10 +49,6 @@ body {
   pointer-events: all;
 }
 
-.focus circle {
-  fill: steelblue;
-}
-
 .focus text {
   font-size: 14px;
 }

@@ -61,6 +61,11 @@ export default function Home(props) {
       return d3.axisBottom(xScale).ticks(20);
     };
 
+    // get the position data in array
+    const bisectDate = d3.bisector(data => {
+      return data.x;
+    }).left;
+
     // append the svg object to the body of the page
     const svg = d3
       .select("body")
@@ -103,8 +108,7 @@ export default function Home(props) {
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Number of Likes");
+      .style("text-anchor", "end");
 
     svg
       .append("g")
@@ -117,56 +121,72 @@ export default function Home(props) {
       .attr("dy", ".95em")
       .attr("transform", "rotate(-65)");
 
-    var focus = svg.append("g")
+    const focus = svg
+      .append("g")
       .attr("class", "focus")
       .style("display", "none");
 
-    focus.append("circle")
-      .attr("r", 5);
+    function mousemove() {
+      const [x] = d3.mouse(this);
+      const previousValue = xScale.invert(x);
+      const index = bisectDate(lineCoordinates, previousValue); // index of Data cell in array
+      focus.attr(
+        "transform",
+        `translate(${xScale(lineCoordinates[index].x)}, ${yScale(
+          lineCoordinates[index].y
+        )})`
+      );
+      const format = d3.timeFormat("%H:%M - %d %B, %Y");
+      focus.select(".tooltip-date").text(`${lineCoordinates[index].y}, F`);
+      focus.select(".tooltip-likes").text(format(lineCoordinates[index].x));
+    }
 
-    focus.append("rect")
+    focus
+      .append("circle")
+      .attr("r", 5)
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("fill", "none");
+
+    focus
+      .append("rect")
       .attr("class", "tooltip")
-      .attr("width", 100)
+      .attr("width", 200)
       .attr("height", 50)
       .attr("x", 10)
       .attr("y", -22)
       .attr("rx", 4)
       .attr("ry", 4);
 
-    focus.append("text")
+    focus
+      .append("text")
       .attr("class", "tooltip-date")
       .attr("x", 18)
       .attr("y", -2);
 
-    focus.append("text")
-      .attr("x", 18)
-      .attr("y", 18)
-      .text("Likes:");
+    focus
+      .append("text")
+      .attr("x", 0)
+      .attr("y", 0);
 
-    focus.append("text")
+    focus
+      .append("text")
       .attr("class", "tooltip-likes")
-      .attr("x", 60)
-      .attr("y", 18);
+      .attr("x", 20)
+      .attr("y", 20);
 
-    svg.append("rect")
+    svg
+      .append("rect")
       .attr("class", "overlay")
-      .attr("width", width)
-      .attr("height", height)
-      .on("mouseover", function() {
+      .attr("width", 1000)
+      .attr("height", 1000)
+      .on("mouseover", () => {
         focus.style("display", null);
       })
-      .on("mouseout", function() {
+      .on("mouseout", () => {
         focus.style("display", "none");
       })
       .on("mousemove", mousemove);
-
-    function mousemove() {
-      const x = d3.mouse(this);
-      console.log(x);
-      focus.attr("transform", "translate(10, 20)");
-      focus.select(".tooltip-date").text("ttest2");
-      focus.select(".tooltip-likes").text("test");
-    }
 
     // add styles for grid
     svg.selectAll(".grid line").style("opacity", 0.2);
