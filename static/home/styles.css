@@ -58,6 +58,6 @@ body {
   stroke: #000;
 }
 
-.tooltip-date, .tooltip-likes {
+.tooltip-date, .tooltip-temperature {
   font-weight: bold;
 }
