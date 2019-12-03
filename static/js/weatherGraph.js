@@ -7,39 +7,42 @@ function convertFahrenheit(fTemp) {
 }
 
 export default function weaterChart(data) {
-  const skycons = new Skycons({ color: "#abc6fb" });
-  // on Android, a nasty hack is needed: {"resizeClear": true}
-
+  const skycons = new Skycons({ color: "#b9d1ff" });
   const { hourly } = data;
+  console.log(hourly.data);
   const margin = { top: 10, right: 30, bottom: 120, left: 40 };
   const width = 960 - margin.left - margin.right;
   const height = 450 - margin.top - margin.bottom;
   const overlayHeight = 400;
 
-  let dateMarkers = {
+  let dataMarkers = {
     date: [],
-    temperature: []
+    temperature: [],
+    icon: [],
+    description: []
   };
 
   hourly.data.map(item => {
     const timeInSeconds = item.time * 1000;
     const date = new Date(timeInSeconds);
 
-    dateMarkers.date.push(date);
-    dateMarkers.temperature.push(convertFahrenheit(item.temperature));
+    dataMarkers.date.push(date);
+    dataMarkers.temperature.push(convertFahrenheit(item.temperature));
+    dataMarkers.icon.push(item.icon.toUpperCase().replace(/[-]/g, "_"));
+    dataMarkers.description.push(item.summary);
   });
 
   // Add Y axis
   const yScale = d3
     .scaleLinear()
     .domain([
-      d3.min(dateMarkers.temperature) * 1.1,
-      d3.max(dateMarkers.temperature) * 1.1
+      d3.min(dataMarkers.temperature) * 1.1,
+      d3.max(dataMarkers.temperature) * 1.1
     ])
     .range([overlayHeight, 0]);
 
   const xScale = d3.scaleTime().range([0, 960]);
-  xScale.domain(d3.extent(dateMarkers.date));
+  xScale.domain(d3.extent(dataMarkers.date));
 
   // 7. d3's line generator
   const line = d3
@@ -48,9 +51,9 @@ export default function weaterChart(data) {
     .y(d => yScale(d.y))
     .curve(d3.curveMonotoneX);
 
-  const lineCoordinates = dateMarkers.date.map((item, i) => ({
+  const lineCoordinates = dataMarkers.date.map((item, i) => ({
     x: item,
-    y: dateMarkers.temperature[i]
+    y: dataMarkers.temperature[i]
   }));
 
   const drawYLinesGrid = () => {
@@ -68,15 +71,14 @@ export default function weaterChart(data) {
 
   // append the svg object to the body of the page
   const svg = d3
-    .select("body")
+    .select("#graphic")
     .append("svg")
     .attr("id", "test")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
-  skycons.add("test", Skycons.RAIN);
-  skycons.play();
+
   svg
     .append("text")
     .attr("x", width / 2 - margin.left)
@@ -160,6 +162,7 @@ export default function weaterChart(data) {
       .attr("y", posY)
       .attr("rx", 4)
       .attr("ry", 4);
+
     focus
       .append("circle")
       .attr("r", 5)
@@ -178,8 +181,6 @@ export default function weaterChart(data) {
       .attr("x", posX + marginItems.textX)
       .attr("y", posY);
 
-
-
     focus
       .append("text")
       .attr("class", "tooltip-date")
@@ -187,26 +188,43 @@ export default function weaterChart(data) {
       .attr("y", posY + marginItems.textY);
   }
 
-  function removeOldTooltips() {
+  function removeOldElements() {
     focus.selectAll("*").remove();
+    d3.select("#icon").remove();
+  }
+
+  function renderIcon(indexDataItem) {
+    const { icon } = dataMarkers;
+    d3.select("#graphic")
+      .append("canvas")
+      .attr("id", "icon")
+      .attr("class", "icon")
+      .attr("width", "100")
+      .attr("height", "100");
+
+    skycons.add("icon", Skycons[icon[indexDataItem]]);
+    skycons.play();
   }
 
   function mousemove() {
     const [x] = d3.mouse(this);
     const previousValue = xScale.invert(x);
-    const index = bisectDate(lineCoordinates, previousValue); // index of Data cell in array
-    const posX = xScale(lineCoordinates[index].x);
-    const posY = yScale(lineCoordinates[index].y);
+    const indexOfDataItem = bisectDate(lineCoordinates, previousValue); // index of Data cell in array
+    const posX = xScale(lineCoordinates[indexOfDataItem].x);
+    const posY = yScale(lineCoordinates[indexOfDataItem].y);
     const format = d3.timeFormat("%H:%M - %d %B, %Y");
 
     focus.attr("transform", `translate(${posX}, ${posY})`);
     focus.selectAll(".tooltip").remove();
-    removeOldTooltips();
+    removeOldElements(); // TODO improve removing/hide of elements
     renderTooltip(posX, posY);
+    renderIcon(indexOfDataItem);
     focus
       .select(".tooltip-temperature")
-      .text(`${lineCoordinates[index].y}, \xB0C`);
-    focus.select(".tooltip-date").text(format(lineCoordinates[index].x));
+      .text(`${lineCoordinates[indexOfDataItem].y}, \xB0C`);
+    focus
+      .select(".tooltip-date")
+      .text(format(lineCoordinates[indexOfDataItem].x));
   }
 
   svg
@@ -219,6 +237,7 @@ export default function weaterChart(data) {
     })
     .on("mouseout", () => {
       focus.style("display", "none");
+      d3.select("#icon").style("display", "none");
     })
     .on("mousemove", mousemove);
 

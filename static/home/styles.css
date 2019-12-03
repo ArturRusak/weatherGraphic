@@ -61,3 +61,16 @@ body {
 .tooltip-date, .tooltip-temperature {
   font-weight: bold;
 }
+
+/**
+ *** icons
+ */
+.graphic {
+  position: relative;
+}
+
+.graphic .icon {
+  position: absolute;
+  top: 20px;
+  left: 100px;
+}

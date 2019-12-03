@@ -28,6 +28,9 @@ export default function Home(props) {
           <span>Graph1</span>
         </div>
       </div>
+      <div className="graphic" id="graphic">
+        <canvas className="icon" id="icon" width="100" height="100"></canvas>
+      </div>
       <Footer />
     </div>
   );
