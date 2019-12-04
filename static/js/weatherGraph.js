@@ -9,7 +9,6 @@ function convertFahrenheit(fTemp) {
 export default function weaterChart(data) {
   const skycons = new Skycons({ color: "#b9d1ff" });
   const { hourly } = data;
-  console.log(hourly.data);
   const margin = { top: 10, right: 30, bottom: 120, left: 40 };
   const width = 960 - margin.left - margin.right;
   const height = 450 - margin.top - margin.bottom;
@@ -69,7 +68,63 @@ export default function weaterChart(data) {
     return data.x;
   }).left;
 
+  function getDateRange() {
+    const format = d3.timeFormat("%e %b");
+    const [start, end] = d3.extent(dataMarkers.date);
+    return ` ${format(start)} - ${format(end)}`;
+  }
+
+  function renderIcon(indexDataItem) {
+    const { icon } = dataMarkers;
+    d3.select("#graphic")
+      .append("canvas")
+      .attr("id", "icon")
+      .attr("class", "icon")
+      .attr("width", "100")
+      .attr("height", "100");
+
+    skycons.add("icon", Skycons[icon[indexDataItem]]);
+    skycons.play();
+  }
+
+  function removeOldElements() {
+    focus.selectAll("*").remove();
+    d3.select("#icon").remove();
+  }
+
+
+  function mousemove() {
+    const [x] = d3.mouse(this);
+    const previousValue = xScale.invert(x);
+    const indexOfDataItem = bisectDate(lineCoordinates, previousValue); // index of Data cell in array
+    const posX = xScale(lineCoordinates[indexOfDataItem].x);
+    const posY = yScale(lineCoordinates[indexOfDataItem].y);
+    const format = d3.timeFormat("%H:%M - %d %B, %Y");
+
+    focus.attr("transform", `translate(${posX}, ${posY})`);
+    focus.selectAll(".tooltip").remove();
+    removeOldElements(); // TODO improve removing/hide of elements
+    renderTooltip(posX, posY);
+    renderIcon(indexOfDataItem);
+    focus
+      .select(".tooltip-temperature")
+      .text(
+        `${lineCoordinates[indexOfDataItem].y}, \xB0C, ${dataMarkers.description[indexOfDataItem]}`
+      );
+    focus
+      .select(".tooltip-date")
+      .text(format(lineCoordinates[indexOfDataItem].x));
+  }
+
+
+  d3.select("#graphic")
+    .append("p")
+    .attr("style", "font-size: 1.2em;text-align: center")
+    .text(data.timezone.split("/")[1])
+    .append("span")
+    .text(getDateRange());
   // append the svg object to the body of the page
+
   const svg = d3
     .select("#graphic")
     .append("svg")
@@ -78,13 +133,6 @@ export default function weaterChart(data) {
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-  svg
-    .append("text")
-    .attr("x", width / 2 - margin.left)
-    .attr("y", 20)
-    .attr("style", "font-size: 1.2em")
-    .text(data.timezone.split("/")[1]);
 
   svg
     .append("g")
@@ -138,7 +186,7 @@ export default function weaterChart(data) {
     .style("display", "none");
 
   function renderTooltip(x, y) {
-    const toolTipWidth = 200;
+    const toolTipWidth = 250;
     const toolTipHeight = 50;
     const staticPosition = { x: 10, y: -22 };
     const marginItems = { textY: 42, textX: 10, tooltipX: 10, tooltipY: 12 };
@@ -186,45 +234,6 @@ export default function weaterChart(data) {
       .attr("class", "tooltip-date")
       .attr("x", posX + marginItems.textX)
       .attr("y", posY + marginItems.textY);
-  }
-
-  function removeOldElements() {
-    focus.selectAll("*").remove();
-    d3.select("#icon").remove();
-  }
-
-  function renderIcon(indexDataItem) {
-    const { icon } = dataMarkers;
-    d3.select("#graphic")
-      .append("canvas")
-      .attr("id", "icon")
-      .attr("class", "icon")
-      .attr("width", "100")
-      .attr("height", "100");
-
-    skycons.add("icon", Skycons[icon[indexDataItem]]);
-    skycons.play();
-  }
-
-  function mousemove() {
-    const [x] = d3.mouse(this);
-    const previousValue = xScale.invert(x);
-    const indexOfDataItem = bisectDate(lineCoordinates, previousValue); // index of Data cell in array
-    const posX = xScale(lineCoordinates[indexOfDataItem].x);
-    const posY = yScale(lineCoordinates[indexOfDataItem].y);
-    const format = d3.timeFormat("%H:%M - %d %B, %Y");
-
-    focus.attr("transform", `translate(${posX}, ${posY})`);
-    focus.selectAll(".tooltip").remove();
-    removeOldElements(); // TODO improve removing/hide of elements
-    renderTooltip(posX, posY);
-    renderIcon(indexOfDataItem);
-    focus
-      .select(".tooltip-temperature")
-      .text(`${lineCoordinates[indexOfDataItem].y}, \xB0C`);
-    focus
-      .select(".tooltip-date")
-      .text(format(lineCoordinates[indexOfDataItem].x));
   }
 
   svg
