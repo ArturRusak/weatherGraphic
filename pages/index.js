@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import weaterChart from "../static/js/weatherGraph";
 import "../static/home/styles.css";
 import fetch from "isomorphic-unfetch";
@@ -7,12 +7,17 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 export default function Home(props) {
+  const [isCelsius, setSsCelsius] = useState(true);
   useEffect(() => {
     if (!props.data) {
       return;
     }
     weaterChart(props.data);
   }, []);
+
+  const changeTemp = () => {
+    setSsCelsius(prevState => !prevState);
+  };
 
   return (
     <div>
@@ -29,7 +34,10 @@ export default function Home(props) {
         </div>
       </div>
       <div className="graphic" id="graphic">
-        <canvas className="icon" id="icon" width="100" height="100"></canvas>
+        <button name="changeTemp" type="button" onClick={changeTemp}>
+          change to {isCelsius ? "F" : "C"}
+        </button>
+        <canvas className="icon" id="icon" width="100" height="100"/>
       </div>
       <Footer />
     </div>

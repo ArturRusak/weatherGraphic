@@ -92,7 +92,6 @@ export default function weaterChart(data) {
     d3.select("#icon").remove();
   }
 
-
   function mousemove() {
     const [x] = d3.mouse(this);
     const previousValue = xScale.invert(x);
@@ -116,13 +115,18 @@ export default function weaterChart(data) {
       .text(format(lineCoordinates[indexOfDataItem].x));
   }
 
-
   d3.select("#graphic")
     .append("p")
     .attr("style", "font-size: 1.2em;text-align: center")
     .text(data.timezone.split("/")[1])
     .append("span")
     .text(getDateRange());
+
+  d3.select("#graphic")
+    .append("button")
+    .attr("type", "button")
+    .on("click", () => console.log("red"))
+    .text("text");
   // append the svg object to the body of the page
 
   const svg = d3
