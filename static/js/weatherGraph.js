@@ -156,13 +156,25 @@ export default function weaterChart(data) {
         .tickFormat("")
     );
 
-  svg
+  const path = svg
     .append("path")
     .datum(lineCoordinates)
     .attr("fill", "none")
     .attr("stroke", "steelblue")
     .attr("stroke-width", 1.5)
     .attr("d", line);
+
+  const totalLength = path.node().getTotalLength();
+  var t = d3.transition()
+    .duration(2000)
+    .ease(d3.easeLinear);
+
+  path
+    .attr("stroke-dasharray", totalLength + " " + totalLength)
+    .attr("stroke-dashoffset", totalLength)
+    .transition(t)
+    .attr("stroke-dashoffset", 0);
+
 
   svg
     .append("g")

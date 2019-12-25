@@ -15,11 +15,6 @@ body {
   padding: 1em;
 }
 
-.line {
-  fill: none;
-  stroke: #ffab00;
-  stroke-width: 3;
-}
 .grid .tick line {
   opacity: 0.4;
 }
